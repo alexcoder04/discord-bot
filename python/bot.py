@@ -18,8 +18,7 @@ class PythonDiscordBot(discord.Client):
     # handeling messages
     async def on_message(self, message):
         # ignoring own messages
-        if message.author == client.user:
-            return
+        if message.author == client.user: return
 
         if lowercase(self.config["name"]) in lowercase(message.content):
             # the message is addressed to the bot ->
