@@ -8,7 +8,7 @@ import os; import sys
 class PythonDiscordBot(discord.Client):
     # log in
     async def on_ready(self):
-        self.print_message("LOGIN", "Logged in.")
+        self.print_message("login", "Logged in.")
         self.read_config()
         self.config["secret"]["adminPwd"] = json.loads(open(os.path.join("..", "secret.json"), "r").read())["adminPwd"]
         channel = client.get_channel(self.config["mainChannelId"])
@@ -24,7 +24,7 @@ class PythonDiscordBot(discord.Client):
             # the message is addressed to the bot ->
             # run message analysing code
             # runnning a command sent from bot admin
-            if message.content = (f"$sudo %{self.config['secret']['adminPwd']} shutdown"):
+            if "$sudo" in message.content and f"%{self.config['secret']['adminPwd']}" in message.content and "shutdown" in message.content:
                 self.exit()
             return
 
@@ -36,7 +36,7 @@ class PythonDiscordBot(discord.Client):
         return
 
     async def print_message(key, message):
-        print(f"[{datetime.now()}] [{key}] {message}")
+        print(f"[{datetime.now()}] [{upper(key)}] {message}")
         return
 
     async def read_config():
@@ -51,5 +51,5 @@ myBot = PythonDiscordBot()
 try:
     myBot.run(json.loads(open(os.path.join("..", "secret.json"), "r").read())["token"])
 except FileNotFoundError:
-    myBot.print_message("ERROR", "You need to create a secret.json file.")
-    myBot.print_message("INFO", "Structure of this file: {'token': 'YOUR_BOT_TOKEN', 'adminPwd': 'A_PASSWORD_TO_MANAGE_YOUR_BOT'}.")
+    myBot.print_message("error", "You need to create a secret.json file.")
+    myBot.print_message("info", "Structure of this file: {'token': 'YOUR_BOT_TOKEN', 'adminPwd': 'A_PASSWORD_TO_MANAGE_YOUR_BOT'}.")

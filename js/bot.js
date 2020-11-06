@@ -1,6 +1,5 @@
 
-const Discord = require("discord.js");
-//const readline = require("readline");
+const discord = require("discord.js");
 const fs = require("fs");
 
 const NAME = "Erhardt";
@@ -8,7 +7,37 @@ const GENERAL_CHANNEL_ID = "XXX";
 const ATTACHMENT_URL = "XXX";
 const ADMIN_PWD = "...";
 
-const client = new Discord.Client();
+class JSDiscordBot extends discord.Client {
+  constructor() {
+    this.readConfig();
+  }
+
+  readConfig(){
+    fs.readFile("../config.json", "utf8", (err, data) => {
+      if (err) {
+        this.printMessage("error", err);
+      } else {
+        that.config = JSON.parse(data);
+      }
+    });
+  }
+
+  printMessage(key, message){
+    console.log(`[${new Date().now().toLocaleTimeString()}] [${key.toUpperCase()}] ${message}`);
+  }
+
+  run(){
+    fs.readFile("../secret.json", "utf8", (err, data) => {
+      if (err){
+        printMessage("error", err)
+      } else {
+        that.login(JSON.parse(data).token);
+      }
+    });
+  }
+}
+
+const client = new JSDiscordBot();
 
 client.on("ready", () => {
   printMessage("LOGIN", "Logged in as " + client.user.tag);
@@ -35,20 +64,10 @@ client.on("message", (message) => {
 
   if (message.content.toLowerCase().includes(NAME.toLowerCase())){
     // analyse message
-    if (message.content == `$sudo %${ADMIN_PWD} shutdown`){
+    if (message.content.includes("$sudo") && message.content.includes("%" + ADMIN_PWD) && message.content.includes("shutdown"){
       process.exit(0);
     }
   }
 });
 
-function printMessage(key, message){
-  console.log(`[TIME] [${key}] ${message}`);
-}
-
-fs.readFile("../secret.json", "utf8", (err, data) => {
-  if (err){
-    printMessage("ERROR", err)
-  } else {
-    client.login(JSON.parse(data).token);
-  }
-});
+client.run();
