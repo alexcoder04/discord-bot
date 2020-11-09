@@ -2,17 +2,19 @@
 
 import discord
 from datetime import datetime
-import plugins
 import os; import sys
+import pydiscbotutils as utils
 
 class PythonDiscordBot(discord.Client):
+    def __init__(self):
+        super().__init__()
+        self.config = utils.PyDiscBotConfig("main_channel", "bot_admin_channel", "Erhardt")
+
     # log in
     async def on_ready(self):
         self.print_message("login", "Logged in.")
-        self.read_config()
-        self.config["secret"]["adminPwd"] = json.loads(open(os.path.join("..", "secret.json"), "r").read())["adminPwd"]
-        channel = client.get_channel(self.config["mainChannelId"])
-        await channel.send(self.config["botName"]  + " ist online XD")
+        channel = client.get_channel(self.config.channels.bot_admin)
+        await channel.send(self.config.name  + " got online.")
         return
 
     # handeling messages
@@ -20,27 +22,16 @@ class PythonDiscordBot(discord.Client):
         # ignoring own messages
         if message.author == client.user: return
 
-        if lowercase(self.config["name"]) in lowercase(message.content):
+        if lowercase(self.config.name) in lowercase(message.content):
             # the message is addressed to the bot ->
             # run message analysing code
             # runnning a command sent from bot admin
-            if "$sudo" in message.content and f"%{self.config['secret']['adminPwd']}" in message.content and "shutdown" in message.content:
+            if message.content == self.config.admin.shutdown_message:
                 self.exit()
             return
 
-    async def run_admin_cmd(self, message):
-        if "%" + self.config["secret"]["adminPwd"] in message.content:
-            pass
-        else:
-            message.author.send("Sorry but you haven't the permissions to run commands on the bot.")
-        return
-
     async def print_message(key, message):
-        print(f"[{datetime.now()}] [{upper(key)}] {message}")
-        return
-
-    async def read_config():
-        self.config = json.loads(open(os.path.join("..", "config.json"), "r").read())
+        print(f"[{datetime.now().strftime('%Y.%m.%d %H:%M:%S')}] [{upper(key)}] {message}")
         return
 
     async def exit():
@@ -49,7 +40,7 @@ class PythonDiscordBot(discord.Client):
 
 myBot = PythonDiscordBot()
 try:
-    myBot.run(json.loads(open(os.path.join("..", "secret.json"), "r").read())["token"])
+    myBot.run(utils.secret.token())
 except FileNotFoundError:
     myBot.print_message("error", "You need to create a secret.json file.")
     myBot.print_message("info", "Structure of this file: {'token': 'YOUR_BOT_TOKEN', 'adminPwd': 'A_PASSWORD_TO_MANAGE_YOUR_BOT'}.")
